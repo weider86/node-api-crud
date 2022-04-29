@@ -5,6 +5,8 @@ const cors = require('cors');
 
 require('./models/Article');
 
+const axios = require('axios');
+
 const Article = mongoose.model('article');
 
 const app = express();
@@ -12,6 +14,8 @@ const app = express();
 app.use(express.json());
 
 app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:3000/');
+  res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE');
   app.use(cors());
   next();
 });
@@ -25,6 +29,28 @@ mongoose
   .catch(() => {
     console.error('!error on conecting with mongodb');
   });
+
+const getAuthor = async () => {
+  return await axios
+    .get('https://api.github.com/users/weider86')
+    .then((response) => {
+      const { data } = response;
+      const author = {
+        name: data.name,
+        login: data.login,
+        avatar: data.avatar_url,
+        url: data.html_url,
+        location: data.location,
+        email: data.email,
+        bio: data.bio,
+        twitter: data.twitter_username,
+      };
+      return author;
+    })
+    .catch((error) => {
+      return error;
+    });
+};
 
 // GET
 app.get('/', (req, res) => {
@@ -103,6 +129,11 @@ app.post('/article', (req, res) => {
       message: 'Successfully created article',
     });
   });
+});
+
+// GET AUTHOR
+app.get('/author', async (req, res) => {
+  res.json(await getAuthor());
 });
 
 app.listen(8080, () => {
