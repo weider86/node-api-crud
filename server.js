@@ -1,7 +1,7 @@
-const { response } = require('express');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const helmet = require('helmet');
 
 require('./models/Article');
 
@@ -12,9 +12,10 @@ const Article = mongoose.model('article');
 const app = express();
 
 app.use(express.json());
+app.use(helmet());
 
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000/');
+  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
   res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE');
   app.use(cors());
   next();
@@ -51,6 +52,8 @@ const getAuthor = async () => {
       return error;
     });
 };
+
+// TODO: Separate routes
 
 // GET
 app.get('/', (req, res) => {
